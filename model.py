@@ -2299,16 +2299,7 @@ class MaskRCNN():
             masks = np.delete(masks, exclude_ix, axis=0)
             N = class_ids.shape[0]
 
-        # Resize masks to original image size and set boundary threshold.
-        full_masks = []
-        for i in range(N):
-            # Convert neural network mask to full size mask
-            full_mask = utils.unmold_mask(masks[i], boxes[i], image_shape)
-            full_masks.append(full_mask)
-        full_masks = np.stack(full_masks, axis=-1)\
-            if full_masks else np.empty((0,) + masks.shape[1:3])
-
-        return boxes, class_ids, scores, full_masks
+        return boxes, class_ids, scores, masks
 
     def detect(self, images, verbose=0):
         """Runs the detection pipeline.
