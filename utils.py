@@ -16,8 +16,12 @@ import tensorflow as tf
 import scipy.misc
 import skimage.color
 import skimage.io
-import urllib.request
+try:
+    import urllib.request
+except ImportError:
+    import urllib2  # For Python2
 import shutil
+import cv2
 
 # URL from which to download the latest COCO trained weights
 COCO_MODEL_URL = "https://github.com/matterport/Mask_RCNN/releases/download/v2.0/mask_rcnn_coco.h5"
@@ -394,11 +398,14 @@ def resize_image(image, min_dim=None, max_dim=None, padding=False):
     if max_dim:
         image_max = max(h, w)
         if round(image_max * scale) > max_dim:
-            scale = max_dim / image_max
+            scale = float(max_dim) / image_max
+
     # Resize image and mask
     if scale != 1:
-        image = scipy.misc.imresize(
-            image, (round(h * scale), round(w * scale)))
+        #image = scipy.misc.imresize(
+        #    image, (int(round(h * scale)), int(round(w * scale))))
+        image = cv2.resize(image, None, None, fx=scale, fy=scale,
+                           interpolation=cv2.INTER_LINEAR)
     # Need padding?
     if padding:
         # Get new height and width

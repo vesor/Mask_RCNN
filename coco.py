@@ -42,7 +42,10 @@ from pycocotools.cocoeval import COCOeval
 from pycocotools import mask as maskUtils
 
 import zipfile
-import urllib.request
+try:
+    import urllib.request
+except ImportError:
+    import urllib2  # For Python2
 import shutil
 
 from config import Config

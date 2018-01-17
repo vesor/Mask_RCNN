@@ -20,6 +20,7 @@ import logging
 from collections import OrderedDict
 import numpy as np
 import scipy.misc
+import cv2
 import tensorflow as tf
 import keras
 import keras.backend as K
@@ -1784,6 +1785,8 @@ class MaskRCNN():
                     shape=[config.IMAGE_SHAPE[0], config.IMAGE_SHAPE[1], None],
                     name="input_gt_masks", dtype=bool)
 
+        # molded_image = KL.Lambda(lambda x: x - config.MEAN_PIXEL)(input_image)
+
         # Build the shared convolutional layers.
         # Bottom-up Layers
         # Returns a list of the last layers of each stage, 5 in total.
@@ -2235,6 +2238,7 @@ class MaskRCNN():
                 max_dim=self.config.IMAGE_MAX_DIM,
                 padding=self.config.IMAGE_PADDING)
             molded_image = mold_image(molded_image, self.config)
+            # molded_image = molded_image.astype(np.float32)
             # Build image_meta
             image_meta = compose_image_meta(
                 0, image.shape, window,
@@ -2497,7 +2501,8 @@ def mold_image(images, config):
     the mean pixel and converts it to float. Expects image
     colors in RGB order.
     """
-    return images.astype(np.float32) - config.MEAN_PIXEL
+    return cv2.subtract(images.astype(np.float32), config.MEAN_PIXEL.reshape((1,) + images.shape[-1:]))
+    # return images.astype(np.float32) - config.MEAN_PIXEL
 
 
 def unmold_image(normalized_images, config):
